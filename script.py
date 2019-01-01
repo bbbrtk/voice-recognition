@@ -21,53 +21,59 @@ import soundfile as sf
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-
-# w, signal = scipy_read(sys.argv[1])
 signal, w = sf.read(sys.argv[1])
 
+# get first canal if more than 1
 if len(signal.shape) > 1:
     signal = [s[0] for s in signal]
 
-#spectrum = signal[::10]
 spectrum = signal 
 
+# basic voice plot
 fig = plt.figure(figsize=(15, 6), dpi=80)   
 plotnum = 811
 ax = fig.add_subplot(plotnum)
-
 ax.plot(spectrum, linestyle='-', color='red')
 ax.set_ylim([min(spectrum), max(spectrum)])
 # --- 
 
+# decimate x7
 signal = np.fft.fft(spectrum)
 ffts = []
-for i in range (5):
-    signal = decimate(signal, 2, zero_phase=False)
-    ffts.append(signal)
+for i in range (6):
+    decimate_signal = decimate(signal, i+2)
+    decimate_signal = abs(decimate_signal)
+    ffts.append(decimate_signal)
     #signal = signal[signal>0]
-    #signal = abs(signal)
-
     
+    # show each decimiated signal on plot
     plotnum += 1
     ax = fig.add_subplot(plotnum)  
     ax.set_xlim([0, 1000])
+    plt.plot(decimate_signal)
 
-    plt.plot(signal)
 
-    #multiply_signal *= signal
-    #np.multiply(multiply_signal, signal)
+# multiply 7 signals    
 sum = ffts[0][:1000]
-for j in range(4):
+for j in range(5):
     sum  *= ffts[j+1][:1000]
 
- 
+# show mulitiplied signal on plot
 plotnum += 1
 ax = fig.add_subplot(plotnum)
 ax.set_xlim([0, 1000])
 plt.plot(sum)
 
-j = list(sum).index(max(sum))
+
+j = list(sum).index(max(sum[50:500])) # get max peak from 50 to 500Hz
 print(j)
+
+# show result
+if (j < 200): 
+    print ("M")
+else: 
+    print ("K")
+
 plt.show()
 
 
