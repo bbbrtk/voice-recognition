@@ -22,12 +22,16 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 signal, w = sf.read(sys.argv[1])
-
 # get first canal if more than 1
 if len(signal.shape) > 1:
     signal = [s[0] for s in signal]
 
-spectrum = signal 
+spectrum = signal
+
+length = len(spectrum)
+trip = int(len(spectrum)/3)
+spectrum = spectrum[trip: length-trip] #tylko 1/3 do 2/3 //środek
+
 
 # basic voice plot
 fig = plt.figure(figsize=(15, 6), dpi=80)   
@@ -38,12 +42,12 @@ ax.set_ylim([min(spectrum), max(spectrum)])
 # --- 
 
 # decimate x7
-signal = np.fft.fft(spectrum)
-ffts = []
-for i in range (6):
+signal = np.fft.rfft(spectrum)
+Decimated_signal_list = []
+for i in range(5):
     decimate_signal = decimate(signal, i+2)
     decimate_signal = abs(decimate_signal)
-    ffts.append(decimate_signal)
+    Decimated_signal_list.append(decimate_signal)
     #signal = signal[signal>0]
     
     # show each decimiated signal on plot
@@ -54,9 +58,9 @@ for i in range (6):
 
 
 # multiply 7 signals    
-sum = ffts[0][:1000]
-for j in range(5):
-    sum  *= ffts[j+1][:1000]
+sum = Decimated_signal_list[0][:1000]
+for j in range(4):
+    sum *= Decimated_signal_list[j][:1000]
 
 # show mulitiplied signal on plot
 plotnum += 1
@@ -65,11 +69,12 @@ ax.set_xlim([0, 1000])
 plt.plot(sum)
 
 
-j = list(sum).index(max(sum[50:500])) # get max peak from 50 to 500Hz
+j = list(sum).index(max(sum[50:300])) # get max peak from 50 to 500Hz
 print(j)
+print(w)
 
 # show result
-if (j < 200): 
+if (j < 175):
     print ("M")
 else: 
     print ("K")
