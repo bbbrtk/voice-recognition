@@ -69,12 +69,12 @@ ax.set_xlim([0, 1000])
 plt.plot(sum)
 
 
-j = list(sum).index(max(sum[50:500])) # get max peak from 50 to 500Hz
+j = list(sum).index(max(sum[50:300])) # get max peak from 50 to 500Hz
 print(j)
 print(w)
 
 # show result
-if (j < 173):
+if (j < 175):
     print ("M")
 else: 
     print ("K")
